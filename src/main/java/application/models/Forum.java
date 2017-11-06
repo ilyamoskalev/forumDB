@@ -23,6 +23,15 @@ public class Forum {
         this.posts = 0;
     }
 
+    public Forum(String user, String title, String slug, int threads, long posts) {
+        this.user = user;
+        this.title = title;
+        this.slug = slug;
+        this.threads = threads;
+        this.posts = posts;
+
+    }
+
     public String getUser() {
         return user;
     }

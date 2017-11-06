@@ -1,6 +1,5 @@
 package application.controllers;
 
-import application.models.User;
 import application.services.ServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +16,12 @@ public class ServiceController {
         this.service = service;
     }
 
-//    @GetMapping(path = "/status", produces = JSON)
-//    public ResponseEntity createUser() {
-//        return service.status();
-//    }
+    @GetMapping(path = "/status", produces = JSON)
+    public ResponseEntity createUser() {
+        return service.status();
+    }
 
-    @GetMapping(path = "/profile", produces = JSON)
+    @PostMapping(path = "/clear", produces = JSON)
     public ResponseEntity getUser() {
         return service.clear();
     }

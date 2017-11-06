@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.sql.PreparedStatement;
 import java.util.List;
 
 @Service
@@ -38,18 +37,9 @@ public class UserService {
 
     public ResponseEntity createUser(User user) {
         try {
-            template.update(connection -> {
-                final String query = "INSERT INTO Users(nickname, fullname, email, about) VALUES(?,?,?,?)";
-                final PreparedStatement pst = connection.prepareStatement(
-                        query,
-                        PreparedStatement.RETURN_GENERATED_KEYS);
-                pst.setString(1, user.getNickname());
-                pst.setString(2, user.getFullname());
-                pst.setString(3, user.getEmail());
-                pst.setString(4, user.getAbout());
-                return pst;
-            });
-            return ResponseEntity.status(HttpStatus.OK).body(user);
+            final String query = "INSERT INTO Users(nickname, fullname, email, about) VALUES(?,?,?,?)";
+            template.update(query, user.getNickname(),user.getFullname(), user.getEmail(), user.getAbout());
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (DuplicateKeyException e) {
             final String query = "SELECT * FROM Users WHERE LOWER(nickname) =  LOWER(?) OR LOWER(email) =  LOWER(?)";
             final List<User> users = template.query(query, USER_MAPPER, user.getNickname(), user.getEmail());
@@ -66,7 +56,7 @@ public class UserService {
             final String query = "UPDATE Users SET " +
                     "fullname = ?, " +
                     "email = ?, " +
-                    "about = ?, " +
+                    "about = ? " +
                     "WHERE nickname = ?";
             template.update(query, user.getFullname(), user.getEmail(), user.getAbout(), user.getNickname());
             return ResponseEntity.status(HttpStatus.OK).body(user);

@@ -3,13 +3,13 @@ package application.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class Thread {
 
     private String author;
     private String forum;
-    private Date created;
+    private Timestamp created;
     private String message;
     private String slug;
     private String title;
@@ -21,14 +21,26 @@ public class Thread {
     public Thread(@JsonProperty("slug") String slug,
                   @JsonProperty("author") String author,
                   @JsonProperty("message") String message,
-                  @JsonProperty("title") String title) {
+                  @JsonProperty("title") String title,
+                  @JsonProperty("created") Timestamp created) {
 
         this.slug = slug;
         this.author = author;
         this.message = message;
         this.title = title;
-        this.created = new Date(System.currentTimeMillis());
+        this.created = created;
 
+    }
+
+    public Thread(String author, String forum, Timestamp created, String message, String slug, String title, int votes, int id) {
+        this.author = author;
+        this.forum = forum;
+        this.created = created;
+        this.message = message;
+        this.slug = slug;
+        this.title = title;
+        this.votes = votes;
+        this.id = id;
     }
 
     public int getId() {
@@ -44,7 +56,7 @@ public class Thread {
     }
 
     public String getCreated() {
-        return created.toInstant().toString();
+        return created.toString();
     }
 
     public String getMessage() {
@@ -75,7 +87,7 @@ public class Thread {
         this.forum = forum;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(Timestamp created) {
         this.created = created;
     }
 
