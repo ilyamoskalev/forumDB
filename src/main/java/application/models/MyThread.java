@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.sql.Timestamp;
 
-public class Thread {
+public class MyThread {
 
     private String author;
     private String forum;
-    private Timestamp created;
+    private String created;
     private String message;
     private String slug;
     private String title;
@@ -18,21 +18,20 @@ public class Thread {
 
 
     @JsonCreator
-    public Thread(@JsonProperty("slug") String slug,
-                  @JsonProperty("author") String author,
-                  @JsonProperty("message") String message,
-                  @JsonProperty("title") String title,
-                  @JsonProperty("created") Timestamp created) {
+    public MyThread(@JsonProperty("slug") String slug,
+                    @JsonProperty("author") String author,
+                    @JsonProperty("message") String message,
+                    @JsonProperty("title") String title,
+                    @JsonProperty("created") String created) {
 
         this.slug = slug;
         this.author = author;
         this.message = message;
         this.title = title;
         this.created = created;
-
     }
 
-    public Thread(String author, String forum, Timestamp created, String message, String slug, String title, int votes, int id) {
+    public MyThread(String author, String forum, String created, String message, String slug, String title, int votes, int id) {
         this.author = author;
         this.forum = forum;
         this.created = created;
@@ -56,7 +55,7 @@ public class Thread {
     }
 
     public String getCreated() {
-        return created.toString();
+        return created;
     }
 
     public String getMessage() {
@@ -87,7 +86,7 @@ public class Thread {
         this.forum = forum;
     }
 
-    public void setCreated(Timestamp created) {
+    public void setCreated(String created) {
         this.created = created;
     }
 
