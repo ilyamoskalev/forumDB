@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS Posts (
   message  TEXT                     NOT NULL,
   parent   INTEGER DEFAULT 0,
   thread   INTEGER                  NOT NULL REFERENCES Threads (id),
-  path     BIGINT ARRAY
+  path     INTEGER ARRAY
 );
 
 
@@ -54,3 +54,15 @@ CREATE TABLE IF NOT EXISTS Votes (
   thread   INTEGER NOT NULL REFERENCES Threads (id),
   UNIQUE (username, thread)
 );
+
+CREATE INDEX forums_username_idx ON Forums (username);
+CREATE INDEX threads_forum_idx ON Threads (forum);
+CREATE INDEX threads_author_idx ON Threads (author);
+CREATE INDEX posts_forum_idx ON Posts (forum);
+CREATE INDEX posts_author_idx ON Posts (author);
+CREATE INDEX posts_thread_idx ON Posts (thread);
+CREATE INDEX posts_path_idx ON Posts (path);
+CREATE INDEX posts_thread_id_idx ON posts(thread, id);
+CREATE INDEX posts_thread_path_idx ON posts(thread, path);
+CREATE INDEX posts_thread_path_1_idx ON posts(thread, (path[1]));
+CREATE INDEX posts_path_1_idx ON Posts ((path[1]));

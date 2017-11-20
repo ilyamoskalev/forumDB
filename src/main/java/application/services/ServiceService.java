@@ -20,7 +20,7 @@ public class ServiceService {
         status.setForum(tmp);
         tmp = template.queryForObject("SELECT COUNT(*) FROM Threads", Integer.class);
         status.setThread(tmp);
-        tmp = template.queryForObject("SELECT COUNT(*) FROM Posta", Integer.class);
+        tmp = template.queryForObject("SELECT COUNT(*) FROM Posts", Integer.class);
         status.setPost(tmp);
         return ResponseEntity.status(HttpStatus.OK).body(status);
     }

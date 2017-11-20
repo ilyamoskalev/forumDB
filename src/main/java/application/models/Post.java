@@ -3,9 +3,6 @@ package application.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.Date;
-import java.sql.Timestamp;
-
 public class Post {
 
     private int id;
@@ -29,6 +26,17 @@ public class Post {
         this.id = 0;
     }
 
+    public Post(int id, String forum, String author, int thread, String created, boolean isEdited, String message, long parent) {
+        this.id = id;
+        this.forum = forum;
+        this.author = author;
+        this.thread = thread;
+        this.created = created;
+        this.isEdited = isEdited;
+        this.message = message;
+        this.parent = parent;
+    }
+
     public long getId() {
         return id;
     }
@@ -45,7 +53,7 @@ public class Post {
         return created;
     }
 
-    public boolean isEdited() {
+    public boolean getIsEdited() {
         return isEdited;
     }
 
@@ -77,8 +85,8 @@ public class Post {
         this.created = created;
     }
 
-    public void setEdited(boolean edited) {
-        isEdited = edited;
+    public void setIsEdited(boolean isEdited) {
+        this.isEdited = isEdited;
     }
 
     public void setMessage(String message) {

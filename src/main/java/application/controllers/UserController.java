@@ -22,7 +22,7 @@ public class UserController {
     public ResponseEntity createUser(@PathVariable("nickname") String nickname, @RequestBody User user) {
         user.setNickname(nickname);
         final List<User> conflictUsers = userService.createUser(user);
-        if(conflictUsers == null){
+        if (conflictUsers == null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).body(conflictUsers);
@@ -35,8 +35,8 @@ public class UserController {
         if (newUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message(nickname + " not found"));
         }
-        user =  userService.changeUser(user, newUser);
-        if(user == null){
+        user = userService.changeUser(user, newUser);
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new Message("email already exists"));
         }
         return ResponseEntity.status(HttpStatus.OK).body(user);
@@ -45,7 +45,7 @@ public class UserController {
     @GetMapping(path = "/profile", produces = JSON)
     public ResponseEntity getUser(@PathVariable("nickname") String nickname) {
         final User user = userService.getUser(nickname);
-        if(user == null) {
+        if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message(nickname + " not found"));
         }
         return ResponseEntity.status(HttpStatus.OK).body(user);

@@ -1,13 +1,10 @@
 package application.services;
 
-import application.models.Message;
 import application.models.User;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -26,10 +23,8 @@ public class UserService {
         try {
             final String query = "SELECT * FROM Users WHERE LOWER (nickname) = LOWER (?)";
             return template.queryForObject(query, USER_MAPPER, nickname);
-            //return ResponseEntity.status(HttpStatus.OK).body(user);
         } catch (EmptyResultDataAccessException e) {
             return null;
-            //return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message(nickname + "not found"));
         }
     }
 
@@ -52,12 +47,6 @@ public class UserService {
 
     @Nullable
     public User changeUser(User user, User newUser) {
-//        final String nickname = user.getNickname();
-//        final ResponseEntity responce = getUser(nickname);
-//        if (responce.getStatusCode() == HttpStatus.NOT_FOUND) {
-//            return responce;
-//        }
-//        final User newUser = (User) responce.getBody();
         final List<Object> args = new ArrayList<>();
         String query = "";
         final String fullname = user.getFullname();
@@ -89,9 +78,9 @@ public class UserService {
             args.add(user.getNickname());
             try {
                 template.update(query, args.toArray(new Object[args.size()]));
-                return newUser;//ResponseEntity.status(HttpStatus.OK).body(newUser);
+                return newUser;
             } catch (DuplicateKeyException e) {
-                return null;//ResponseEntity.status(HttpStatus.CONFLICT).body(new Message("email already exists"));
+                return null;
             }
         }
         return newUser;

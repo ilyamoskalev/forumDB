@@ -110,10 +110,11 @@ public class ForumService {
     }
 
     public List<User> users(String slug, Integer limit, String since, Boolean desc) {
-        String query = "SELECT * FROM (SELECT u.about, u.mail, u.fullname, u.nickname " +
-                "FROM Threads t LEFT JOIN Users u ON t.author = u.nickname AND t.forum = ? " +
-                "UNION SELECT u.about, u.mail, u.fullname, u.nickname " +
-                "FROM Posts p LEFT JOIN Users u ON p.author = u.nickname AND p.forum = ?) as u";
+        String query = "SELECT * FROM (SELECT ut.about, ut.email, ut.fullname, ut.nickname " +
+                "FROM Threads t JOIN Users ut ON t.author = ut.nickname AND LOWER(t.forum) = LOWER(?) " +
+                "UNION " +
+                "SELECT up.about, up.email, up.fullname, up.nickname " +
+                "FROM Posts p JOIN Users up ON p.author = up.nickname AND LOWER(p.forum) = LOWER(?)) as u";
         if (since != null) {
             if (desc) {
                 query += " WHERE nickname < '" + since + "'";
@@ -121,13 +122,19 @@ public class ForumService {
                 query += " WHERE nickname > '" + since + "'";
             }
         }
+        query += " ORDER BY u.nickname";
         if (desc) {
             query += " DESC";
         }
         if (limit != null) {
-            query += " LIMIT " + limit.toString();
+            query += " LIMIT " + limit;
         }
-        return template.queryForList(query, User.class, slug, slug);
+        return template.query(query, USER_MAPPER, slug, slug);
     }
+
+    private static final RowMapper<User> USER_MAPPER = (res, num) -> new User(res.getString("about"),
+            res.getString("email"),
+            res.getString("fullname"),
+            res.getString("nickname"));
 
 }

@@ -52,7 +52,7 @@ public class ForumController {
     @GetMapping(path = "/{slug}/details", produces = JSON)
     public ResponseEntity details(@PathVariable("slug") String slug) {
         final Forum forum = service.details(slug);
-        if(forum == null) {
+        if (forum == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Forum " + slug + " not found"));
         }
         return ResponseEntity.status(HttpStatus.OK).body(forum);
@@ -72,7 +72,7 @@ public class ForumController {
     @GetMapping(path = "/{slug}/users", produces = JSON)
     public ResponseEntity users(@PathVariable("slug") String slug, @RequestParam(value = "limit", required = false) Integer limit,
                                 @RequestParam(value = "since", required = false) String since,
-                                @RequestParam(value = "desc", required = false) Boolean desc) {
+                                @RequestParam(value = "desc", required = false, defaultValue = "false") Boolean desc) {
         final ResponseEntity entity = details(slug);
         if (entity.getStatusCode() == HttpStatus.NOT_FOUND) {
             return entity;
