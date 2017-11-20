@@ -69,6 +69,12 @@ public class ForumService {
             }
             final String query = "UPDATE Forums SET threads = threads + 1 WHERE LOWER(slug) = LOWER(?)";
             template.update(query, forum);
+            try {
+                final String boostQuery = "INSERT INTO Boost(username, slug) VALUES (?,?)";
+                template.update(boostQuery, nickname, forum);
+            } catch (DuplicateKeyException ignore){
+
+            }
             return ResponseEntity.status(HttpStatus.CREATED).body(thread);
         } catch (DuplicateKeyException e) {
             final String query = "SELECT * FROM Threads WHERE LOWER (slug) = LOWER (?)";
@@ -81,7 +87,8 @@ public class ForumService {
     public Forum details(String slug) {
         try {
             final String query = "SELECT * FROM Forums WHERE LOWER (slug) = LOWER (?)";
-            return template.queryForObject(query, FORUM_MAPPER, slug);
+            Forum forum = template.queryForObject(query, FORUM_MAPPER, slug);
+            return forum;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -106,30 +113,28 @@ public class ForumService {
         if (limit != null) {
             query += " LIMIT " + limit.toString();
         }
-        return template.query(query, THREAD_MAPPER, slug);
+        List<MyThread> threads = template.query(query, THREAD_MAPPER, slug);
+        return threads;
     }
 
     public List<User> users(String slug, Integer limit, String since, Boolean desc) {
-        String query = "SELECT * FROM (SELECT ut.about, ut.email, ut.fullname, ut.nickname " +
-                "FROM Threads t JOIN Users ut ON t.author = ut.nickname AND LOWER(t.forum) = LOWER(?) " +
-                "UNION " +
-                "SELECT up.about, up.email, up.fullname, up.nickname " +
-                "FROM Posts p JOIN Users up ON p.author = up.nickname AND LOWER(p.forum) = LOWER(?)) as u";
+        String query = "SELECT u.about, u.email, u.fullname, u.nickname FROM Boost b JOIN Users u ON b.username = u.nickname WHERE LOWER (b.slug) = LOWER(?)";
         if (since != null) {
             if (desc) {
-                query += " WHERE nickname < '" + since + "'";
+                query += " AND LOWER(nickname) < LOWER('" + since + "')";
             } else {
-                query += " WHERE nickname > '" + since + "'";
+                query += " AND LOWER(nickname) > LOWER('" + since + "')";
             }
         }
-        query += " ORDER BY u.nickname";
+        query += " ORDER BY LOWER(u.nickname)";
         if (desc) {
             query += " DESC";
         }
         if (limit != null) {
             query += " LIMIT " + limit;
         }
-        return template.query(query, USER_MAPPER, slug, slug);
+        List<User> users = template.query(query, USER_MAPPER, slug);
+        return users;
     }
 
     private static final RowMapper<User> USER_MAPPER = (res, num) -> new User(res.getString("about"),

@@ -22,7 +22,8 @@ public class UserService {
     public User getUser(String nickname) {
         try {
             final String query = "SELECT * FROM Users WHERE LOWER (nickname) = LOWER (?)";
-            return template.queryForObject(query, USER_MAPPER, nickname);
+            User user =  template.queryForObject(query, USER_MAPPER, nickname);
+            return user;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -41,7 +42,8 @@ public class UserService {
             return null;
         } catch (DuplicateKeyException e) {
             final String query = "SELECT * FROM Users WHERE LOWER(nickname) =  LOWER(?) OR LOWER(email) =  LOWER(?)";
-            return template.query(query, USER_MAPPER, user.getNickname(), user.getEmail());
+            List<User> users =  template.query(query, USER_MAPPER, user.getNickname(), user.getEmail());
+            return users;
         }
     }
 
