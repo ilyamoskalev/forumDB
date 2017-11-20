@@ -67,7 +67,7 @@ public class ForumService {
                 final Integer id = template.queryForObject(query, Integer.class, nickname, Converter.toTimestamp(thread.getCreated()), forum, thread.getMessage(), thread.getSlug(), thread.getTitle());
                 thread.setId(id);
             }
-            final String query = "UPDATE Forums SET threads = threads + 1 WHERE slug = ?";
+            final String query = "UPDATE Forums SET threads = threads + 1 WHERE LOWER(slug) = LOWER(?)";
             template.update(query, forum);
             return ResponseEntity.status(HttpStatus.CREATED).body(thread);
         } catch (DuplicateKeyException e) {

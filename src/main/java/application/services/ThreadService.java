@@ -59,10 +59,10 @@ public class ThreadService {
             final String query = "INSERT INTO Votes(username, voice, thread) VALUES(?, ?, ?)";
             template.update(query, vote.getNickname(), voice, vote.getThread());
         } catch (DuplicateKeyException e) {
-            String query = "SELECT voice FROM Votes WHERE username = ?";
-            final Integer oldVoice = template.queryForObject(query, Integer.class, vote.getNickname());
-            query = "UPDATE Votes SET voice = ? WHERE username = ?";
-            template.update(query, voice, vote.getNickname());
+            String query = "SELECT voice FROM Votes WHERE username = ? AND thread = ?";
+            final Integer oldVoice = template.queryForObject(query, Integer.class, vote.getNickname(), vote.getThread());
+            query = "UPDATE Votes SET voice = ? WHERE username = ? AND thread = ?";
+            template.update(query, voice, vote.getNickname(), vote.getThread());
             voice -= oldVoice;
         }
         final String query = "UPDATE Threads SET votes = votes + ? WHERE id = ? RETURNING votes";
