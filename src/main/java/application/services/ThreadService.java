@@ -22,11 +22,17 @@ public class ThreadService {
 
     public void createPosts(List<Post> posts) {
         String query = "INSERT INTO posts(author, created, forum, message, parent, thread) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
+        final String boostQuery = "INSERT INTO Boost(username, slug) VALUES (?,?)";
         for (Post post : posts) {
             final Integer id = template.queryForObject(query, Integer.class, post.getAuthor(), Converter.toTimestamp(post.getCreated()), post.getForum(), post.getMessage(), post.getParent(), post.getThread());
             post.setId(id);
             final String query1 = "UPDATE posts SET path = array_append((SELECT path FROM posts WHERE id = ?), ?) WHERE id = ?";
             template.update(query1, post.getParent(), id, id);
+            try {
+                template.update(boostQuery, post.getAuthor(), post.getForum());
+            } catch (DuplicateKeyException ignore){
+
+            }
         }
         query = "UPDATE Forums SET posts = posts + ? WHERE LOWER(slug) = LOWER(?)";
         template.update(query, posts.size(), posts.get(0).getForum());
@@ -39,14 +45,16 @@ public class ThreadService {
             final Integer id = Integer.parseInt(slug);
             try {
                 query = "SELECT * FROM Threads WHERE id = ?";
-                return template.queryForObject(query, THREAD_MAPPER, id);
+                MyThread thread = template.queryForObject(query, THREAD_MAPPER, id);
+                return thread;
             } catch (EmptyResultDataAccessException e) {
                 return null;
             }
         } catch (NumberFormatException e) {
             try {
                 query = "SELECT * FROM Threads WHERE LOWER(slug) = LOWER(?)";
-                return template.queryForObject(query, THREAD_MAPPER, slug);
+                MyThread thread =  template.queryForObject(query, THREAD_MAPPER, slug);
+                return thread;
             } catch (EmptyResultDataAccessException e1) {
                 return null;
             }
@@ -66,7 +74,8 @@ public class ThreadService {
             voice -= oldVoice;
         }
         final String query = "UPDATE Threads SET votes = votes + ? WHERE id = ? RETURNING votes";
-        return template.queryForObject(query, Integer.class, voice, vote.getThread());
+        Integer votes = template.queryForObject(query, Integer.class, voice, vote.getThread());
+        return votes;
     }
 
     @Nullable

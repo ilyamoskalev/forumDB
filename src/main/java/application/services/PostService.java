@@ -18,15 +18,16 @@ public class PostService {
     public Post getById(Integer id) {
         try {
             final String query = "SELECT * FROM posts WHERE id = ?";
-            return template.queryForObject(query, POST_MAPPER, id);
-        } catch (EmptyResultDataAccessException e){
+            Post post = template.queryForObject(query, POST_MAPPER, id);
+            return post;
+        } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
     public void update(Integer id, String message) {
-            final String query = "UPDATE posts SET message = ?, isedited = TRUE WHERE id = ?";
-            template.update(query, message, id);
+        final String query = "UPDATE posts SET message = ?, isedited = TRUE WHERE id = ?";
+        template.update(query, message, id);
     }
 
     private static final RowMapper<Post> POST_MAPPER = (res, num) -> new Post(
