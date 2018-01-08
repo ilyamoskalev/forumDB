@@ -16,7 +16,9 @@ RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/$PGVER/main/pg_hba
 
 RUN echo "listen_addresses='*'" >> /etc/postgresql/$PGVER/main/postgresql.conf
 RUN echo "synchronous_commit=off" >> /etc/postgresql/$PGVER/main/postgresql.conf
-RUN echo "shared_buffers = 256MB" >> /etc/postgresql/$PGVER/main/postgresql.conf
+RUN echo "shared_buffers = 512MB" >> /etc/postgresql/$PGVER/main/postgresql.conf
+RUN echo "max_wal_size = 1GB" >> /etc/postgresql/$PGVER/main/postgresql.conf
+RUN echo "work_mem = 4MB" >> /etc/postgresql/$PGVER/main/postgresql.conf
 RUN echo "autovacuum = off" >> /etc/postgresql/$PGVER/main/postgresql.conf
 
 EXPOSE 5432
@@ -25,15 +27,18 @@ VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
 USER root
 
+RUN apt-get update
 RUN apt-get install -y openjdk-8-jdk-headless
 RUN apt-get install -y maven
 
-ADD . /forumDB
-WORKDIR /forumDB
+ENV WORK /opt/BD
+ADD src/ $WORK/src/
+ADD pom.xml $WORK/
 
+WORKDIR $WORK
 RUN mvn package
+
 
 EXPOSE 5000
 
-
-CMD service postgresql start && java -Xmx300M -Xmx300M -jar target/Forum-1.0-SNAPSHOT.jar
+CMD service postgresql start && java -jar target/forumDB-1.0-SNAPSHOT.jar application.Application --database=jdbc:postgresql://localhost/docker --username=docker --password=docker

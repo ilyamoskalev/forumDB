@@ -85,7 +85,7 @@ CREATE INDEX IF NOT EXISTS posts_path1_thread_idx
 CREATE INDEX IF NOT EXISTS posts_parent_thread_idx
   ON Posts (parent, thread);
 CREATE INDEX IF NOT EXISTS posts_path1_idx
-  ON Posts ((path [1]));--
+  ON Posts ((path [1])); --
 
 CREATE TABLE IF NOT EXISTS Votes (
   id       SERIAL  NOT NULL PRIMARY KEY,
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS Votes (
 
 CREATE TABLE IF NOT EXISTS Boost (
   username CITEXT NOT NULL REFERENCES Users (nickname),
-  slug CITEXT NOT NULL REFERENCES Forums (slug),
+  slug     CITEXT NOT NULL REFERENCES Forums (slug),
   UNIQUE (username, slug)
 );
 
