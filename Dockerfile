@@ -3,7 +3,6 @@ FROM ubuntu:16.04
 RUN apt-get -y update
 
 ENV PGVER 9.5
-RUN apt-get update
 RUN apt-get install -y postgresql-$PGVER
 
 USER postgres
@@ -26,7 +25,6 @@ VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
 USER root
 
-RUN apt-get update
 RUN apt-get install -y openjdk-8-jdk-headless
 RUN apt-get install -y maven
 
