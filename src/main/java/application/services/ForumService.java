@@ -125,15 +125,15 @@ public class ForumService {
 
     public List<User> users(String slug, Integer limit, String since, Boolean desc) {
         long start = System.currentTimeMillis();
-        String query = "SELECT u.about, u.email, u.fullname, u.nickname FROM Boost b LEFT JOIN Users u ON b.username = u.nickname WHERE LOWER (b.slug) = LOWER(?)";
+        String query = "SELECT u.about, u.email, u.fullname, b.username FROM Boost b JOIN Users u ON LOWER(b.username) = LOWER(u.nickname) WHERE LOWER (b.slug) = LOWER(?)";
         if (since != null) {
             if (desc) {
-                query += " AND LOWER(nickname) < LOWER('" + since + "')";
+                query += " AND LOWER(b.username) < LOWER('" + since + "')";
             } else {
-                query += " AND LOWER(nickname) > LOWER('" + since + "')";
+                query += " AND LOWER(b.username) > LOWER('" + since + "')";
             }
         }
-        query += " ORDER BY LOWER(u.nickname)";
+        query += " ORDER BY LOWER(b.username)";
         if (desc) {
             query += " DESC";
         }
@@ -149,6 +149,6 @@ public class ForumService {
     private static final RowMapper<User> USER_MAPPER = (res, num) -> new User(res.getString("about"),
             res.getString("email"),
             res.getString("fullname"),
-            res.getString("nickname"));
+            res.getString("username"));
 
 }
