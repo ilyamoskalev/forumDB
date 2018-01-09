@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,38 +21,28 @@ public class ThreadService {
     private JdbcTemplate template;
 
     public void createPosts(List<Post> posts) {
-        long start = System.currentTimeMillis();
-        String query = "INSERT INTO posts(author, created, forum, message, parent, thread) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
+        final String query = "INSERT INTO posts(author, created, forum, message, parent, thread) VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
         for (Post post : posts) {
             final Integer id = template.queryForObject(query, Integer.class, post.getAuthor(), Converter.toTimestamp(post.getCreated()), post.getForum(), post.getMessage(), post.getParent(), post.getThread());
             post.setId(id);
         }
-        long end = System.currentTimeMillis();
-        System.out.println("Thread: createPosts "+(end-start)+"ms");
     }
 
     @Nullable
     public MyThread getBySlug(String slug) {
-        long start = System.currentTimeMillis();
         String query;
         try {
             final Integer id = Integer.parseInt(slug);
             try {
                 query = "SELECT * FROM Threads WHERE id = ?";
-                MyThread thread = template.queryForObject(query, THREAD_MAPPER, id);
-                long end = System.currentTimeMillis();
-                System.out.println("Thread: getBySlug "+(end-start)+"ms");
-                return thread;
+                return template.queryForObject(query, THREAD_MAPPER, id);
             } catch (EmptyResultDataAccessException e) {
                 return null;
             }
         } catch (NumberFormatException e) {
             try {
                 query = "SELECT * FROM Threads WHERE LOWER(slug) = LOWER(?)";
-                MyThread thread =  template.queryForObject(query, THREAD_MAPPER, slug);
-                long end = System.currentTimeMillis();
-                System.out.println("Thread: getBySlug!!! "+(end-start)+"ms");
-                return thread;
+                return template.queryForObject(query, THREAD_MAPPER, slug);
             } catch (EmptyResultDataAccessException e1) {
                 return null;
             }
@@ -61,7 +50,6 @@ public class ThreadService {
     }
 
     public Integer vote(Vote vote) {
-        long start = System.currentTimeMillis();
         Integer voice = vote.getVoice();
         try {
             final String query = "INSERT INTO Votes(username, voice, thread) VALUES(?, ?, ?)";
@@ -74,28 +62,18 @@ public class ThreadService {
             voice -= oldVoice;
         }
         final String query = "UPDATE Threads SET votes = votes + ? WHERE id = ? RETURNING votes";
-        Integer votes = template.queryForObject(query, Integer.class, voice, vote.getThread());
-        long end = System.currentTimeMillis();
-        System.out.println("Thread: Vote "+(end-start)+"ms");
-        return votes;
+        return template.queryForObject(query, Integer.class, voice, vote.getThread());
     }
 
     @Nullable
     public List<Post> getPosts(Integer thread, Integer limit, Integer since, String sort, Boolean desc) {
-        long start = System.currentTimeMillis();
         List<Post> posts = null;
         if (sort == null || sort.equals("flat")) {
             posts = flat(thread, limit, since, desc);
-            long end = System.currentTimeMillis();
-            System.out.println("Thread: flat "+(end-start)+"ms");
         } else if (sort.equals("tree")) {
             posts = tree(thread, limit, since, desc);
-            long end = System.currentTimeMillis();
-            System.out.println("Thread: Tree "+(end-start)+"ms");
         } else if (sort.equals("parent_tree")) {
             posts = parentTree(thread, limit, since, desc);
-            long end = System.currentTimeMillis();
-            System.out.println("Thread: parentTree "+(end-start)+"ms");
         }
         return posts;
     }
@@ -172,11 +150,8 @@ public class ThreadService {
     }
 
     public void update(MyThread thread) {
-        long start = System.currentTimeMillis();
         final String query = "Update Threads SET message = ?, title = ? WHERE id = ?";
         template.update(query, thread.getMessage(), thread.getTitle(), thread.getId());
-        long end = System.currentTimeMillis();
-        System.out.println("Thread: updateThread "+(end-start)+"ms");
     }
 
     private static final RowMapper<MyThread> THREAD_MAPPER = (res, num) -> new MyThread(

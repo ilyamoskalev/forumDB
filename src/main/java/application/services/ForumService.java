@@ -43,69 +43,54 @@ public class ForumService {
     );
 
     public ResponseEntity createForum(Forum forum) {
-        final long start = System.currentTimeMillis();
         try {
             final String query = "INSERT INTO Forums(slug, title, username) VALUES(?, ?, ?)";
             template.update(query, forum.getSlug(), forum.getTitle(), forum.getUser());
-            final long end = System.currentTimeMillis();
-            System.out.println("Forum: createForum "+(end-start)+"ms");
             return ResponseEntity.status(HttpStatus.CREATED).body(forum);
         } catch (DuplicateKeyException e) {
             final String query = "SELECT * FROM Forums WHERE LOWER (slug) = LOWER (?)";
             final Forum conflictForum = template.queryForObject(query, FORUM_MAPPER, forum.getSlug());
-            final long end = System.currentTimeMillis();
-            System.out.println("Forum: createForumConflict "+(end-start)+"ms");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(conflictForum);
         }
     }
 
     public ResponseEntity createThread(MyThread thread) {
-        final long start = System.currentTimeMillis();
         final String nickname = thread.getAuthor();
         final String forum = thread.getForum();
         try {
             if (thread.getCreated() == null) {
                 final String query = "INSERT INTO Threads(author, forum, message, slug, title) VALUES(?, ?, ?, ?, ?) RETURNING id";
-                final Integer id = template.queryForObject(query, Integer.class, nickname, forum, thread.getMessage(), thread.getSlug(), thread.getTitle());
-                thread.setId(id);
+                thread.setId(template.queryForObject(query, Integer.class, nickname, forum, thread.getMessage(), thread.getSlug(), thread.getTitle()));
             } else {
                 final String query = "INSERT INTO Threads(author, created, forum, message, slug, title) VALUES(?, ?, ?, ?, ?, ?) RETURNING id";
-                final Integer id = template.queryForObject(query, Integer.class, nickname, Converter.toTimestamp(thread.getCreated()), forum, thread.getMessage(), thread.getSlug(), thread.getTitle());
-                thread.setId(id);
+                thread.setId(template.queryForObject(query, Integer.class, nickname, Converter.toTimestamp(thread.getCreated()), forum, thread.getMessage(), thread.getSlug(), thread.getTitle()));
             }
             return ResponseEntity.status(HttpStatus.CREATED).body(thread);
         } catch (DuplicateKeyException e) {
             final String query = "SELECT * FROM Threads WHERE LOWER (slug) = LOWER (?)";
             final MyThread conflictThread = template.queryForObject(query, THREAD_MAPPER, thread.getSlug());
-            long end = System.currentTimeMillis();
-            System.out.println("Forum: CreateThread "+(end-start)+"ms");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(conflictThread);
         }
     }
 
     @Nullable
     public Forum details(String slug) {
-        long start = System.currentTimeMillis();
         try {
             final String query = "SELECT * FROM Forums WHERE LOWER (slug) = LOWER (?)";
-            Forum forum = template.queryForObject(query, FORUM_MAPPER, slug);
-            long end = System.currentTimeMillis();
-            System.out.println("Forum: Details "+(end-start)+"ms");
-            return forum;
+            return template.queryForObject(query, FORUM_MAPPER, slug);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
     }
 
     public List<MyThread> threads(String slug, Integer limit, String since, Boolean desc) {
-        long start = System.currentTimeMillis();
         String query = "SELECT * FROM Threads WHERE LOWER (forum) = LOWER (?)";
         if (since != null) {
-            Timestamp date = Converter.toTimestamp(since);
+            final Timestamp date = Converter.toTimestamp(since);
             if (desc) {
-                query += " AND created <= '" + date + "'";
+                query += " AND created <= '" + date + '\'';
             } else {
-                query += " AND created >= '" + date + "'";
+                query += " AND created >= '" + date + '\'';
             }
         }
 
@@ -117,14 +102,10 @@ public class ForumService {
         if (limit != null) {
             query += " LIMIT " + limit.toString();
         }
-        List<MyThread> threads = template.query(query, THREAD_MAPPER, slug);
-        long end = System.currentTimeMillis();
-        System.out.println("Forum: Threads "+(end-start)+"ms");
-        return threads;
+        return template.query(query, THREAD_MAPPER, slug);
     }
 
     public List<User> users(String slug, Integer limit, String since, Boolean desc) {
-        long start = System.currentTimeMillis();
         String query = "SELECT u.about, u.email, u.fullname, b.username FROM Boost b JOIN Users u ON LOWER(b.username) = LOWER(u.nickname) WHERE LOWER (b.slug) = LOWER(?)";
         if (since != null) {
             if (desc) {
@@ -140,10 +121,7 @@ public class ForumService {
         if (limit != null) {
             query += " LIMIT " + limit;
         }
-        List<User> users = template.query(query, USER_MAPPER, slug);
-        long end = System.currentTimeMillis();
-        System.out.println("Forum: Users "+(end-start)+"ms");
-        return users;
+        return template.query(query, USER_MAPPER, slug);
     }
 
     private static final RowMapper<User> USER_MAPPER = (res, num) -> new User(res.getString("about"),

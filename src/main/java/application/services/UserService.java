@@ -20,13 +20,9 @@ public class UserService {
 
     @Nullable
     public User getUser(String nickname) {
-        long start = System.currentTimeMillis();
         try {
             final String query = "SELECT * FROM Users WHERE LOWER (nickname) = LOWER (?)";
-            User user =  template.queryForObject(query, USER_MAPPER, nickname);
-            long end = System.currentTimeMillis();
-            System.out.println("User: getUser "+(end-start)+"ms");
-            return user;
+            return template.queryForObject(query, USER_MAPPER, nickname);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -39,25 +35,18 @@ public class UserService {
 
     @Nullable
     public List<User> createUser(User user) {
-        long start = System.currentTimeMillis();
         try {
             final String query = "INSERT INTO Users(nickname, fullname, email, about) VALUES(?,?,?,?)";
             template.update(query, user.getNickname(), user.getFullname(), user.getEmail(), user.getAbout());
-            long end = System.currentTimeMillis();
-            System.out.println("User: createUser "+(end-start)+"ms");
             return null;
         } catch (DuplicateKeyException e) {
             final String query = "SELECT * FROM Users WHERE LOWER(nickname) =  LOWER(?) OR LOWER(email) =  LOWER(?)";
-            List<User> users =  template.query(query, USER_MAPPER, user.getNickname(), user.getEmail());
-            long end = System.currentTimeMillis();
-            System.out.println("User: createUserDuplicates "+(end-start)+"ms");
-            return users;
+            return template.query(query, USER_MAPPER, user.getNickname(), user.getEmail());
         }
     }
 
     @Nullable
     public User changeUser(User user, User newUser) {
-        long start = System.currentTimeMillis();
         final List<Object> args = new ArrayList<>();
         String query = "";
         final String fullname = user.getFullname();
@@ -94,8 +83,6 @@ public class UserService {
                 return null;
             }
         }
-        long end = System.currentTimeMillis();
-        System.out.println("User: changeUser "+(end-start)+"ms");
         return newUser;
     }
 

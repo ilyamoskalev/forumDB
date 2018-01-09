@@ -64,14 +64,12 @@ BEGIN
 END
 $$;
 
--- DROP TRIGGER add_user_after_insert_thread ON Threads;
 CREATE TRIGGER add_user_after_insert_thread
   AFTER INSERT
   ON Threads
   FOR EACH ROW
 EXECUTE PROCEDURE add_user_to_boost();
 
--- DROP TRIGGER add_user_after_insert_thread ON Posts;
 CREATE TRIGGER add_user_after_insert_thread
   AFTER INSERT
   ON Posts
@@ -86,13 +84,11 @@ AS $$BEGIN
   RETURN NEW;
 END$$;
 
--- DROP TRIGGER add_path_after_insert_post ON Posts;
 CREATE TRIGGER add_path_after_insert_post
   BEFORE INSERT
   ON Posts
   FOR EACH ROW
 EXECUTE PROCEDURE add_path();
-
 
 CREATE OR REPLACE FUNCTION thread_inc() RETURNS trigger
 LANGUAGE plpgsql
@@ -102,7 +98,6 @@ AS $$BEGIN
   RETURN NEW;
 END$$;
 
--- DROP TRIGGER thread_inc ON Threads;
 CREATE TRIGGER thread_inc
 AFTER INSERT
   ON Threads
@@ -118,7 +113,6 @@ AS $$BEGIN
   RETURN NEW;
 END$$;
 
--- DROP TRIGGER post_inc ON Posts;
 CREATE TRIGGER post_inc
 AFTER INSERT
   ON Posts
