@@ -41,4 +41,4 @@ RUN mvn package
 
 EXPOSE 5000
 
-CMD service postgresql start && java -jar target/forumDB-1.0-SNAPSHOT.jar application.Application --database=jdbc:postgresql://localhost/docker --username=docker --password=docker
+CMD service postgresql start && java -jar target/forumDB-1.0-SNAPSHOT.jar application.Application

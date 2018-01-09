@@ -43,18 +43,24 @@ public class ForumService {
     );
 
     public ResponseEntity createForum(Forum forum) {
+        final long start = System.currentTimeMillis();
         try {
             final String query = "INSERT INTO Forums(slug, title, username) VALUES(?, ?, ?)";
             template.update(query, forum.getSlug(), forum.getTitle(), forum.getUser());
+            final long end = System.currentTimeMillis();
+            System.out.println("Forum: createForum "+(end-start)+"ms");
             return ResponseEntity.status(HttpStatus.CREATED).body(forum);
         } catch (DuplicateKeyException e) {
             final String query = "SELECT * FROM Forums WHERE LOWER (slug) = LOWER (?)";
             final Forum conflictForum = template.queryForObject(query, FORUM_MAPPER, forum.getSlug());
+            final long end = System.currentTimeMillis();
+            System.out.println("Forum: createForumConflict "+(end-start)+"ms");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(conflictForum);
         }
     }
 
     public ResponseEntity createThread(MyThread thread) {
+        final long start = System.currentTimeMillis();
         final String nickname = thread.getAuthor();
         final String forum = thread.getForum();
         try {
@@ -67,27 +73,24 @@ public class ForumService {
                 final Integer id = template.queryForObject(query, Integer.class, nickname, Converter.toTimestamp(thread.getCreated()), forum, thread.getMessage(), thread.getSlug(), thread.getTitle());
                 thread.setId(id);
             }
-            final String query = "UPDATE Forums SET threads = threads + 1 WHERE LOWER(slug) = LOWER(?)";
-            template.update(query, forum);
-            try {
-                final String boostQuery = "INSERT INTO Boost(username, slug) VALUES (?,?)";
-                template.update(boostQuery, nickname, forum);
-            } catch (DuplicateKeyException ignore){
-
-            }
             return ResponseEntity.status(HttpStatus.CREATED).body(thread);
         } catch (DuplicateKeyException e) {
             final String query = "SELECT * FROM Threads WHERE LOWER (slug) = LOWER (?)";
             final MyThread conflictThread = template.queryForObject(query, THREAD_MAPPER, thread.getSlug());
+            long end = System.currentTimeMillis();
+            System.out.println("Forum: CreateThread "+(end-start)+"ms");
             return ResponseEntity.status(HttpStatus.CONFLICT).body(conflictThread);
         }
     }
 
     @Nullable
     public Forum details(String slug) {
+        long start = System.currentTimeMillis();
         try {
             final String query = "SELECT * FROM Forums WHERE LOWER (slug) = LOWER (?)";
             Forum forum = template.queryForObject(query, FORUM_MAPPER, slug);
+            long end = System.currentTimeMillis();
+            System.out.println("Forum: Details "+(end-start)+"ms");
             return forum;
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -95,6 +98,7 @@ public class ForumService {
     }
 
     public List<MyThread> threads(String slug, Integer limit, String since, Boolean desc) {
+        long start = System.currentTimeMillis();
         String query = "SELECT * FROM Threads WHERE LOWER (forum) = LOWER (?)";
         if (since != null) {
             Timestamp date = Converter.toTimestamp(since);
@@ -114,11 +118,14 @@ public class ForumService {
             query += " LIMIT " + limit.toString();
         }
         List<MyThread> threads = template.query(query, THREAD_MAPPER, slug);
+        long end = System.currentTimeMillis();
+        System.out.println("Forum: Threads "+(end-start)+"ms");
         return threads;
     }
 
     public List<User> users(String slug, Integer limit, String since, Boolean desc) {
-        String query = "SELECT u.about, u.email, u.fullname, u.nickname FROM Boost b JOIN Users u ON b.username = u.nickname WHERE LOWER (b.slug) = LOWER(?)";
+        long start = System.currentTimeMillis();
+        String query = "SELECT u.about, u.email, u.fullname, u.nickname FROM Boost b LEFT JOIN Users u ON b.username = u.nickname WHERE LOWER (b.slug) = LOWER(?)";
         if (since != null) {
             if (desc) {
                 query += " AND LOWER(nickname) < LOWER('" + since + "')";
@@ -134,6 +141,8 @@ public class ForumService {
             query += " LIMIT " + limit;
         }
         List<User> users = template.query(query, USER_MAPPER, slug);
+        long end = System.currentTimeMillis();
+        System.out.println("Forum: Users "+(end-start)+"ms");
         return users;
     }
 

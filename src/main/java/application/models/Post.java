@@ -12,12 +12,12 @@ public class Post {
     private String created;
     private boolean isEdited;
     private String message;
-    private long parent;
+    private int parent;
 
     @JsonCreator
     public Post(@JsonProperty("author") String author,
                 @JsonProperty("message") String message,
-                @JsonProperty("parent") long parent) {
+                @JsonProperty("parent") int parent) {
 
         this.author = author;
         this.message = message;
@@ -26,7 +26,7 @@ public class Post {
         this.id = 0;
     }
 
-    public Post(int id, String forum, String author, int thread, String created, boolean isEdited, String message, long parent) {
+    public Post(int id, String forum, String author, int thread, String created, boolean isEdited, String message, int parent) {
         this.id = id;
         this.forum = forum;
         this.author = author;
@@ -37,7 +37,7 @@ public class Post {
         this.parent = parent;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
@@ -61,7 +61,7 @@ public class Post {
         return message;
     }
 
-    public long getParent() {
+    public int getParent() {
         return parent;
     }
 
@@ -93,7 +93,7 @@ public class Post {
         this.message = message;
     }
 
-    public void setParent(long parent) {
+    public void setParent(int parent) {
         this.parent = parent;
     }
 

@@ -33,10 +33,11 @@ public class ThreadController {
         if (!posts.isEmpty()) {
             final String created = Converter.fromTimestamp(new Timestamp(System.currentTimeMillis()));
             for (Post post : posts) {
-                final Long parentId = post.getParent();
+                final Integer parentId = post.getParent();
                 if (parentId != 0) {
-                    final Post parent = postService.getById(parentId.intValue());
+                    final Post parent = postService.getById(parentId);
                     if (parent == null) {
+                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + parentId);
                         return ResponseEntity.status(HttpStatus.CONFLICT).body(new Message("No parent"));
                     }
                     if (parent.getThread() != thread.getId()) {
