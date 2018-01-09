@@ -37,7 +37,6 @@ public class ThreadController {
                 if (parentId != 0) {
                     final Post parent = postService.getById(parentId);
                     if (parent == null) {
-                        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + parentId);
                         return ResponseEntity.status(HttpStatus.CONFLICT).body(new Message("No parent"));
                     }
                     if (parent.getThread() != thread.getId()) {
