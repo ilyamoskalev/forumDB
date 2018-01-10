@@ -40,10 +40,9 @@ public class ForumController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message(nickname + " not found"));
         }
-        final String forunName = thread.getForum();
-        final Forum forum = service.details(forunName);
+        final Forum forum = service.details(slug);
         if (forum == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message(forunName + " not found"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message(slug + " not found"));
         }
         thread.setForum(forum.getSlug());
         return service.createThread(thread);
