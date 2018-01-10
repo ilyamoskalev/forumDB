@@ -106,7 +106,7 @@ public class ForumService {
     }
 
     public List<User> users(String slug, Integer limit, String since, Boolean desc) {
-        String query = "SELECT u.about, u.email, u.fullname, b.username FROM Boost b LEFT JOIN Users u ON LOWER(b.username) = LOWER(u.nickname) WHERE LOWER (b.slug) = LOWER(?)";
+        String query = "SELECT u.about, u.email, u.fullname, b.username FROM Boost b JOIN Users u ON LOWER(b.username) = LOWER(u.nickname) WHERE LOWER (b.slug) = LOWER(?)";
         if (since != null) {
             if (desc) {
                 query += " AND LOWER(b.username) < LOWER('" + since + "')";
