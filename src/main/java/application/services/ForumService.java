@@ -106,7 +106,7 @@ public class ForumService {
     }
 
     public List<User> users(String slug, Integer limit, String since, Boolean desc) {
-        String query = "SELECT u.about, u.email, u.fullname, b.username FROM Boost b JOIN Users u ON LOWER(b.username) = LOWER(u.nickname) WHERE LOWER (b.slug) = LOWER(?)";
+        String query = "SELECT u.about, u.email, u.fullname, b.username FROM Boost b LEFT JOIN Users u ON LOWER(b.username) = LOWER(u.nickname) WHERE LOWER (b.slug) = LOWER(?)";
         if (since != null) {
             if (desc) {
                 query += " AND LOWER(b.username) < LOWER('" + since + "')";
@@ -124,7 +124,8 @@ public class ForumService {
         return template.query(query, USER_MAPPER, slug);
     }
 
-    private static final RowMapper<User> USER_MAPPER = (res, num) -> new User(res.getString("about"),
+    private static final RowMapper<User> USER_MAPPER = (res, num) -> new User(
+            res.getString("about"),
             res.getString("email"),
             res.getString("fullname"),
             res.getString("username"));
