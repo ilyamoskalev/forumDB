@@ -13,4 +13,6 @@ CREATE INDEX IF NOT EXISTS posts_parent_thread_idx ON Posts (thread, created, id
 CREATE INDEX IF NOT EXISTS posts_path_thread_idx ON Posts (id, (path[1]));
 CREATE INDEX IF NOT EXISTS posts_thread_id_idx ON Posts(thread, id);
 CREATE INDEX IF NOT EXISTS posts_thread_parent_idx ON Posts(thread, parent);
+  WHERE parent = 0;
 CREATE INDEX IF NOT EXISTS posts_thread_parent_id_idx ON Posts(thread, parent, id);
+  WHERE parent = 0;
